@@ -17,6 +17,39 @@ firebase.initializeApp(config);
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
+export const createUserProfileDocument = async (
+	userAuth,
+	...additionalData
+) => {
+	if (!userAuth) return;
+
+	// access to user document
+	const userRef = firestore.doc(`users/${userAuth.uid}`);
+
+	// get user snapshot
+	const snapshot = await userRef.get();
+
+	if (!snapshot.exists) {
+		// Get displayName and email
+		const { displayName, email } = userAuth;
+		const createdAt = new Date();
+
+		// store user data into collection
+		try {
+			await userRef.set({
+				displayName,
+				email,
+				createdAt,
+				...additionalData,
+			});
+		} catch (err) {
+			console.log("Error registering user", err.message);
+		}
+	}
+
+	return userRef;
+};
+
 // set up google authentication
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
