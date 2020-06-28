@@ -20,8 +20,25 @@ class App extends Component {
 
 	// open conx to watch user auth changes
 	componentDidMount() {
-		this.unsubscribeFromAuth = auth.onAuthStateChanged((user) => {
-			createUserProfileDocument(user);
+		this.unsubscribeFromAuth = auth.onAuthStateChanged(async (user) => {
+			// if user signed in
+			if (user) {
+				// get the user obj
+				const userRef = await createUserProfileDocument(user);
+
+				// after db updates with new user
+				userRef.onSnapshot((snapshot) => {
+					this.setState({
+						currentUser: {
+							id: snapshot.id,
+							...snapshot.data(),
+						},
+					});
+					console.log(this.state);
+				});
+			} else {
+				this.setState({ currentUser: user });
+			}
 		});
 	}
 
