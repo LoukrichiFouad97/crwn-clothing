@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 
 import "./App.css";
@@ -15,7 +15,7 @@ import { setCurrentUser } from "./redux/user/user-actions";
 class App extends Component {
 	unsubscribeFromAuth = null;
 
-	// open conx to watch user auth changes
+	// open connection to watch user auth changes
 	componentDidMount() {
 		const { setCurrentUser } = this.props;
 
@@ -52,7 +52,13 @@ class App extends Component {
 					<Route exact path="/" component={Homepage} />
 					<Route exact path="/shop" component={Shop} />
 					<Route exact path="/contact" component={() => <h1>contact</h1>} />
-					<Route exact path="/signin" component={SignInAndSignUp} />
+					<Route
+						exact
+						path="/signin"
+						render={() =>
+							this.props.currentUser ? <Redirect to="/" /> : <SignInAndSignUp />
+						}
+					/>
 					<Route component={() => <h1>404 Not Found</h1>} />
 				</Switch>
 			</div>
@@ -60,8 +66,14 @@ class App extends Component {
 	}
 }
 
+// access to state
+const mapStateToProps = ({ user }) => ({
+	currentUser: user.currentUser,
+});
+
+// set state
 const mapDispatchToProps = (dispatch) => ({
 	setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

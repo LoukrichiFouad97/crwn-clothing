@@ -1,8 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+
 import { auth } from "../../firebase/firebase-utils";
+
 import { ReactComponent as Logo } from "../../assets/crown.svg";
+
 import "./header.scss";
 
 const Header = ({ currentUser }) => (
@@ -31,8 +34,8 @@ const Header = ({ currentUser }) => (
 );
 
 // access to redux reducers
-const mapStateToProps = (state) => ({
-	currentUser: state.user.currentUser,
+const mapStateToProps = ({ user }) => ({
+	currentUser: user.currentUser,
 });
 
 export default connect(mapStateToProps)(Header);
