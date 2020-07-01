@@ -33,11 +33,13 @@ const Header = ({ currentUser, hidden }) => (
 			)}
 			<CartIcon />
 		</div>
+		
+		{/* Hide and Show cart dropdown  */}
 		{!hidden && <CartDropDown />}
 	</div>
 );
 
-// access to redux reducers
+// access to redux state
 const mapStateToProps = ({ user: { currentUser }, cart: { hidden } }) => ({
 	currentUser,
 	hidden,
