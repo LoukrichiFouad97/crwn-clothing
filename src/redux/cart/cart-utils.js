@@ -1,5 +1,14 @@
+/** add item to cart items
+ * 1 - get the cart items and the item to add
+ * 2 - search through cart items if contains the target item
+ *     -- if cart contains the item
+ *        -- return new cart & increase the quantity of items
+ *     -- if cart doesn't contain the item
+ *        -- return new cart with the new item in it
+ * 3 - return cart items & add to it the quantity of 1 to new items
+ */
+
 export const addItemToCart = (cartItems, cartItemToAdd) => {
-	// check if cart item existed
 	const existedCartItem = cartItems.find(
 		(cartItem) => cartItem.id === cartItemToAdd.id
 	);
@@ -10,7 +19,7 @@ export const addItemToCart = (cartItems, cartItemToAdd) => {
 				? { ...cartItem, quantity: cartItem.quantity + 1 }
 				: cartItem
 		);
-  }
-  
-  return [...cartItems, {...cartItemToAdd, quantity: 1}]
+	}
+
+	return [...cartItems, { ...cartItemToAdd, quantity: 1 }];
 };
