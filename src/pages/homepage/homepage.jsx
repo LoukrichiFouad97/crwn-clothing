@@ -1,11 +1,13 @@
 import React from "react";
-import Directory from "../../components/directory-menu/directory";
-import "./homepage.scss";
 
-const Homeage = (props) => (
-	<div className="homepage">
+import Directory from "../../components/directory-menu/directory";
+
+import { HomepageContainer } from "./homepage.style";
+
+const Homeage = () => (
+	<HomepageContainer>
 		<Directory />
-	</div>
+	</HomepageContainer>
 );
 
 export default Homeage;
