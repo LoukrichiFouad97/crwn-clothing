@@ -17,46 +17,57 @@ firebase.initializeApp(config);
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
+/** createUserProfileDocument Function
+ * [1] get the user && any additional data parameters
+ * [2] check if user is authenticated or not
+ * [3] get the user documentReference && get userSnapshot
+ * [4]
+ *
+ */
+
 export const createUserProfileDocument = async (
-	userAuth,
+	userAuth /* authenticated user */,
 	...additionalData
 ) => {
 	if (!userAuth) return;
 
-	// access to user document
+	// Request user document reference object
 	const userRef = firestore.doc(`users/${userAuth.uid}`);
 
-	// get user snapshot
+	console.log(userRef);
+	// get user document snapshot obj using user document reference
 	const snapshot = await userRef.get();
+	console.log(snapshot);
 
-	if (!snapshot.exists) {
-		// Get displayName and email
-		const { displayName, email } = userAuth;
-		const createdAt = new Date();
+	// // if user is not registered
+	// if (!snapshot.exists) {
+	// 	// Get displayName and email from the authenticated user
+	// 	const { displayName, email } = userAuth;
+	// 	const createdAt = new Date();
 
-		// store user data into collection
-		try {
-			await userRef.set({
-				displayName,
-				email,
-				createdAt,
-				...additionalData,
-			});
-		} catch (err) {
-			console.log("Error registering user", err.message);
-		}
-	}
+	// 	// Create user document && account
+	// 	try {
+	// 		await userRef.set({
+	// 			displayName,
+	// 			email,
+	// 			createdAt,
+	// 			...additionalData,
+	// 		});
+	// 	} catch (err) {
+	// 		console.log("Error registering user", err.message);
+	// 	}
+	// }
 
-	return userRef;
+	// return userRef;
 };
 
-// set up google authentication
+// Use google as an authentication provider
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // trigger auth pop up
 googleProvider.setCustomParameters({ prompet: "select_account" });
 
-// sign in with auth provider pop up
+// Use pop-up as a way of authenticating
 export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
 
 export default firebase;
