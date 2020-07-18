@@ -12,12 +12,21 @@ import Header from "./components/header/header";
 import CheckoutPage from "./pages/checkout/checkout";
 
 import { auth } from "./firebase/firebase-utils";
-import { createUserProfileDocument } from "./firebase/firebase-utils";
+import {
+	createUserProfileDocument,
+} from "./firebase/firebase-utils";
 import { setCurrentUser } from "./redux/user/user-actions";
 import { selectCurrentUser } from "./redux/user/user-selectors";
 
 class App extends Component {
 	unsubscribeFromAuth = null;
+
+	/** componentDidMount function
+	 *	[1] keep track of the authenticated user status using: onAuthStateChanged(authenticated user)
+	 *	[2] check if user is authenticated
+	 *  [3] store the user in firebase && get back his documentReference using:  createUserProfileDocument(user)
+	 * 	[4] setup a listener on user snapshot that stores the user in the state
+	 */
 
 	// open connection to watch user auth changes
 	componentDidMount() {
@@ -26,19 +35,23 @@ class App extends Component {
 		this.unsubscribeFromAuth = auth.onAuthStateChanged(async (user) => {
 			// if user signed in
 			if (user) {
-				// get the user obj
+				// get the user documentReference. after, storing it in firestore.
 				const userRef = await createUserProfileDocument(user);
 
 				// after db updates with new user
 				userRef.onSnapshot((snapshot) => {
+					// trigger redux action creator func && set snapshot data as a payload
 					setCurrentUser({
 						id: snapshot.id,
 						...snapshot.data(),
 					});
-					console.log(this.state);
 				});
 			} else {
 				setCurrentUser({ user });
+				// addCollectionAndDocuments(
+				// 	"collection",
+				// 	collectionsArray.map(({ title, items }) => ({ title, items }))
+				// );
 			}
 		});
 	}
@@ -59,25 +72,24 @@ class App extends Component {
 					<Route exact path="/contact" component={() => <h1>contact</h1>} />
 					<Route exact path="/checkout" component={CheckoutPage} />
 					<Route
-						exact
 						path="/signin"
 						render={() =>
 							currentUser ? <Redirect to="/" /> : <SignInAndSignUp />
 						}
 					/>
-					<Route component={() => <h1>404 Not Found</h1>} />
 				</Switch>
 			</div>
 		);
 	}
 }
 
-// access to state
+// Access the current user from the state
 const mapStateToProps = createStructuredSelector({
 	currentUser: selectCurrentUser,
+	// collectionsArray: selectCollectionForPreview,
 });
 
-// set state
+// Store the user in the state
 const mapDispatchToProps = (dispatch) => ({
 	setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });

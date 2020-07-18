@@ -21,7 +21,8 @@ export const firestore = firebase.firestore();
  * [1] get the user && any additional data parameters
  * [2] check if user is authenticated or not
  * [3] get the user documentReference && get userSnapshot
- * [4]
+ * [4] check if snapshot exists or not
+ *
  *
  */
 
@@ -34,38 +35,61 @@ export const createUserProfileDocument = async (
 	// Request user document reference object
 	const userRef = firestore.doc(`users/${userAuth.uid}`);
 
-	console.log(userRef);
 	// get user document snapshot obj using user document reference
 	const snapshot = await userRef.get();
-	console.log(snapshot);
 
-	// // if user is not registered
-	// if (!snapshot.exists) {
-	// 	// Get displayName and email from the authenticated user
-	// 	const { displayName, email } = userAuth;
-	// 	const createdAt = new Date();
+	// if user is not registered
+	if (!snapshot.exists) {
+		// Get displayName and email from the authenticated user
+		const { displayName, email } = userAuth;
+		const createdAt = new Date();
 
-	// 	// Create user document && account
-	// 	try {
-	// 		await userRef.set({
-	// 			displayName,
-	// 			email,
-	// 			createdAt,
-	// 			...additionalData,
-	// 		});
-	// 	} catch (err) {
-	// 		console.log("Error registering user", err.message);
-	// 	}
-	// }
+		// Create user document && account
+		try {
+			await userRef.set({
+				displayName,
+				email,
+				createdAt,
+				...additionalData,
+			});
+		} catch (err) {
+			console.log("Error registering user", err.message);
+		}
+	}
 
-	// return userRef;
+	return userRef;
+};
+
+/** addCollectionAndDocuments func
+ * [1] get the collection key && the document to be added
+ * [2] get the reference of the collection
+ * [3] make sure to use firestore.batch() to avoid half fail errors (all success || all fail)
+ * [4] loop through the documents to add && create documentReferences for each document
+ * [5] bind each document with documentReference using batch.set() func
+ * [6] don't forget to commit batches
+ */
+
+export const addCollectionAndDocuments = async (
+	collectionKey,
+	documentsToAdd
+) => {
+	const collectionRef = firestore.collection(collectionKey);
+	console.log(collectionRef);
+
+	const batch = firestore.batch();
+	documentsToAdd.forEach((document) => {
+		const newDocRef = collectionRef.doc();
+		batch.set(newDocRef, document);
+	});
+
+	return await batch.commit();
 };
 
 // Use google as an authentication provider
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // trigger auth pop up
-googleProvider.setCustomParameters({ prompet: "select_account" });
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // Use pop-up as a way of authenticating
 export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
