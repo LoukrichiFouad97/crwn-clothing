@@ -74,7 +74,6 @@ export const addCollectionAndDocuments = async (
 	documentsToAdd
 ) => {
 	const collectionRef = firestore.collection(collectionKey);
-	console.log(collectionRef);
 
 	const batch = firestore.batch();
 	documentsToAdd.forEach((document) => {
@@ -83,6 +82,27 @@ export const addCollectionAndDocuments = async (
 	});
 
 	return await batch.commit();
+};
+
+export const convertCollectionsSnapshotToMap = (collections) => {
+	const transformedCollection = collections.docs.map((doc) => {
+		const { title, items } = doc.data();
+
+		return {
+			routeName: encodeURI(title.toLowerCase()),
+			id: doc.id,
+			title,
+			items,
+		};
+	});
+
+	/**
+	 * get an object that has each collection title as key & a collection as value
+	 */
+	return transformedCollection.reduce((acc, collection) => {
+		acc[collection.title.toLowerCase()] = collection;
+		return acc;
+	}, {});
 };
 
 // Use google as an authentication provider
