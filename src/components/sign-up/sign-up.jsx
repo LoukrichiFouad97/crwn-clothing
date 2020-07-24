@@ -35,6 +35,7 @@ class SignUp extends Component {
 			);
 
 			console.log(user);
+			
 			// create user document
 			await createUserProfileDocument(user, { displayName });
 
